@@ -1,10 +1,33 @@
 package main
 
+import (
+	"flag"
+	"log"
+	"read-adviser-bot/clients/telegram"
+)
+
+const (
+	tgBotHost = "api.telegram.org"
+)
+
+
+// mustToken - создаёт токен пакетом flag
+func mustToken() string {
+	token := flag.String("bot-token",
+		"",
+		"token for access to telegram bot")
+
+	flag.Parse()
+
+	if *token == "" { // если токен пуст, вызываем log.Fatal
+		log.Fatal("token is not specified")
+	}
+
+	return *token
+}
+
 func main() {
-
-	// token = flags.Get(token)
-
-	// tgClient = telegram.New(token)
+	tgClient := telegram.New(tgBotHost, mustToken()) // Телеграм клиент
 
 	/* fetcher и processor будут общаться с API телеграмма
 	fetcher будет отправлять запрос чтобы получать новые события,
