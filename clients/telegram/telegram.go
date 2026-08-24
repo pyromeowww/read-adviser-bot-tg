@@ -22,6 +22,17 @@ const (
 	sendMessageMethod = "SendMessage"
 )
 
+// New - создаёт клиент
+func New(host string, token string) Client {
+	return Client{
+		host:     host,
+		basePath: newBasePath(token),
+		client: http.Client{
+			Timeout: 15 * time.Second,
+		},
+	}
+}
+
 func newBasePath(token string) string {
 	return "bot" + token
 }
@@ -63,16 +74,6 @@ func (c *Client) Updates(offset int, limit int) ([]Update, error) {
 	return res.Result, nil
 }
 
-// New - создаёт клиент
-func New(host string, token string) Client {
-	return Client{
-		host:     host,
-		basePath: newBasePath(token),
-		client: http.Client{
-			Timeout: 15 * time.Second,
-		},
-	}
-}
 
 // Отправка запросов. do request <- getUpdates
 func (c *Client) doRequest(method string, query url.Values) (data []byte, err error) {
