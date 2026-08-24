@@ -2,6 +2,7 @@ package storage
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
 	e "read-adviser-bot/lib"
@@ -13,6 +14,8 @@ type Storage interface {
 	Remove(p *Page) error
 	IsExists(p *Page) (bool, error) // Проверяет существует ли страница
 }
+
+var ErrNoSavedPages = errors.New("no saved pages")
 
 // Основной пакет данных с которым будет работать Storage
 type Page struct {
