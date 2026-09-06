@@ -3,17 +3,21 @@ package main
 import (
 	"flag"
 	"log"
-	"read-adviser-bot/clients/telegram"
+	tgClient "read-adviser-bot/clients/telegram"
+	event_consumer "read-adviser-bot/consumer/event-consumer"
+	"read-adviser-bot/events/telegram"
+	"read-adviser-bot/storage/files"
 )
 
 const (
-	tgBotHost = "api.telegram.org"
+	tgBotHost   = "api.telegram.org"
+	storagePath = "storage"
+	batchSize   = 100
 )
-
 
 // mustToken - создаёт токен пакетом flag
 func mustToken() string {
-	token := flag.String("bot-token",
+	token := flag.String("tg-bot-token",
 		"",
 		"token for access to telegram bot")
 
@@ -27,17 +31,12 @@ func mustToken() string {
 }
 
 func main() {
-	tgClient := telegram.New(tgBotHost, mustToken()) // Телеграм клиент
+	eventsProcessor := telegram.New(tgClient.New(tgBotHost, mustToken()), files.New(storagePath))
 
-	/* fetcher и processor будут общаться с API телеграмма
-	fetcher будет отправлять запрос чтобы получать новые события,
-	а процессор после обработки сам будет отправлять новые сообщения
-	*/
+	log.Print("service started")
 
-	// fetcher = fetcher.New(tgClient) Создаём fetcher
-
-	// processor = processor.New(tgClient) Создаём processor
-
-	//consumer получает и обрабатывает события
-	// consumer.Start(fetcher, processor) для получение используется fetcher, а для обработки processor
+	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
+	if err := consumer.Start(); err != nil {
+		log.Fatal("service is stopped", err)
+	}
 }
